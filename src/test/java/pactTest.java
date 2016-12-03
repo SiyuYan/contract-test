@@ -3,11 +3,12 @@ import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
 import au.com.dius.pact.model.PactFragment;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
+import org.apache.http.HttpHeaders;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -25,15 +26,13 @@ public class pactTest extends ConsumerPactTest {
 
     @Override
     public PactFragment createFragment(PactDslWithProvider builder) {
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Content-Type", "text/plain;charset=ISO-8859-1");
+        Map<String, String> headers = ImmutableMap.of(HttpHeaders.CONTENT_TYPE, "text/plain");
         try {
             return builder
                     .given("test state")
                     .uponReceiving("expect receive all user data")
                     .path(path)
                     .method("GET")
-                    .headers(headers)
                     .willRespondWith()
                     .status(200)
                     .headers(headers)
@@ -43,7 +42,6 @@ public class pactTest extends ConsumerPactTest {
                     .uponReceiving("expect receive specific user data according to name")
                     .path(path + "/siyu")
                     .method("GET")
-                    .headers(headers)
                     .willRespondWith()
                     .status(200)
                     .headers(headers)
