@@ -1,13 +1,8 @@
-import au.com.dius.pact.consumer.Pact;
-import au.com.dius.pact.consumer.PactProviderRule;
-import au.com.dius.pact.consumer.PactVerification;
+import au.com.dius.pact.consumer.ConsumerPactTest;
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
 import au.com.dius.pact.model.PactFragment;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.message.BasicNameValuePair;
-import org.junit.Rule;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -16,60 +11,72 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertEquals;
 
-public class pactTest {
-
-    private static final String URL = "http://localhost:9002";
+public class pactTest extends ConsumerPactTest {
     private static final String path = "/cost/rest/analysis/services/statistic";
+
+    private ArrayList<User> allUsers = newArrayList(
+            new User("siyu", "yan", 18, "female"),
+            new User("ranran", "liu", 28, "male"));
+    private User expectedUser = new User("siyu", "yan", 18, "female");
+
     ObjectMapper mapper = new ObjectMapper();
 
-    @Rule
-    public PactProviderRule provider = new PactProviderRule("service_provider", "localhost", 9002, this);
-
-    @Pact(provider = "service_provider", consumer = "app_consumer")
-    public PactFragment createFragment(PactDslWithProvider builder) throws JsonProcessingException {
+    @Override
+    public PactFragment createFragment(PactDslWithProvider builder) {
         Map<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "text/plain;charset=ISO-8859-1");
+        try {
+            return builder
+                    .given("test state")
+                    .uponReceiving("expect receive all user data")
+                    .path(path)
+                    .method("GET")
+                    .headers(headers)
+                    .willRespondWith()
+                    .status(200)
+                    .headers(headers)
+                    .body(mapper.writeValueAsString(allUsers))
 
-        ArrayList<User> users = newArrayList(
-                new User("siyu", "yan", 18, "female"),
-                new User("siyu1", "yan1", 18, "female"));
-
-        return builder
-                .given("require user data list")
-                .uponReceiving("a_request_for_statistic")
-                .path(path)
-                .method("GET")
-                .headers(headers)
-                .willRespondWith()
-                .status(200)
-                .headers(headers)
-                .body(mapper.writeValueAsString(users))
-
-                .given("search specific user data")
-                .uponReceiving("a_request_for_statistic")
-                .path(path + "/siyu")
-                .method("GET")
-                .headers(headers)
-                .willRespondWith()
-                .status(200)
-                .headers(headers)
-                .body(mapper.writeValueAsString(users.get(0)))
-                .toFragment();
+                    .given("test state")
+                    .uponReceiving("expect receive specific user data according to name")
+                    .path(path + "/siyu")
+                    .method("GET")
+                    .headers(headers)
+                    .willRespondWith()
+                    .status(200)
+                    .headers(headers)
+                    .body(mapper.writeValueAsString(expectedUser))
+                    .toFragment();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    @PactVerification("service_provider")
-    @Test
-    public void runTest() throws IOException, URISyntaxException {
-        assertEquals(new ConsumerClient(URL).getStatusCode(path), 200);
-        ArrayList<User> users = newArrayList(
-                new User("siyu", "yan", 18, "female"),
-                new User("siyu1", "yan1", 18, "female"));
+    @Override
+    protected String providerName() {
+        return "service_provider";
+    }
 
-        String nameValuePair = String.valueOf(new BasicNameValuePair("firstName", "siyu"));
+    @Override
+    protected String consumerName() {
+        return "service_consumer";
+    }
 
-        assertEquals(new ConsumerClient(URL).getAsString(path, null), mapper.writeValueAsString(users));
-        assertEquals(new ConsumerClient(URL).getAsString(path + "/siyu", nameValuePair), mapper.writeValueAsString(users.get(0)));
+    @Override
+    public void runTest(String url) throws IOException {
+        try {
+            //expect return all users when no params
+            assertEquals(new ConsumerClient(url).getAsString(path),
+                    mapper.writeValueAsString(allUsers));
+
+            //expect return specific user by name
+            assertEquals(new ConsumerClient(url).getAsString(path + "/siyu"),
+                    mapper.writeValueAsString(expectedUser));
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
     }
 }
