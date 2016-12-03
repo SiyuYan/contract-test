@@ -53,7 +53,7 @@
                                     <!-- All the provider properties are optional, and have sensible defaults (shown below) -->
                                     <protocol>http</protocol>
                                     <host>localhost</host>
-                                    <port>9001</port>
+                                    <port>9002</port>
                                     <path>/</path>
                                     <pactFileDirectory>target/pacts/</pactFileDirectory>
                                 </serviceProvider>

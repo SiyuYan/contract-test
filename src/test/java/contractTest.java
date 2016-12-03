@@ -47,12 +47,12 @@
 //    public void runTest(String url) throws IOException {
 //        System.out.println("******Run");
 //
-//        assertEquals(new ConsumerClient(url).options("/rest/analysis/services/statistic"), 200);
+//        assertEquals(new ConsumerClient(url).getStatusCode("/rest/analysis/services/statistic"), 200);
 ////        Map expectedResponse = new HashMap();
 ////        expectedResponse.put("responsetest", true);
 ////        expectedResponse.put("name", "harry");
 ////        assertEquals(new ConsumerClient(url).getAsMap("/", ""), expectedResponse);
-////        assertEquals(new ConsumerClient(url).options("/second"), 200);
+////        assertEquals(new ConsumerClient(url).getStatusCode("/second"), 200);
 //
 //    }
 //
