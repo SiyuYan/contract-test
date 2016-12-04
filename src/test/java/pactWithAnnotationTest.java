@@ -31,14 +31,14 @@ public class pactWithAnnotationTest {
     private User expectedUser = new User("siyu", "yan", 18, "female");
 
     @Rule
-    public PactProviderRule provider = new PactProviderRule("service_provider", "localhost", 9002, this);
+    public PactProviderRule mockProvider = new PactProviderRule("service_provider", "localhost", 9002, this);
 
     @Pact(provider = "service_provider", consumer = "service_consumer")
     public PactFragment createFragment(PactDslWithProvider builder) throws JsonProcessingException {
         Map<String, String> headers = ImmutableMap.of(HttpHeaders.CONTENT_TYPE, "text/plain");
 
         return builder
-                .given("test state")
+                .given("there is a list a user data")
                 .uponReceiving("expect receive all user data")
                 .path(path)
                 .method(HttpMethod.GET.toString())
@@ -47,7 +47,7 @@ public class pactWithAnnotationTest {
                 .headers(headers)
                 .body(mapper.writeValueAsString(allUsers))
 
-                .given("test state")
+                .given("there is a list a user data")
                 .uponReceiving("expect receive specific user data according to name")
                 .path(path + "/siyu")
                 .method(HttpMethod.GET.toString())

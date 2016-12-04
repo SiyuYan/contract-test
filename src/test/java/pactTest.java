@@ -29,7 +29,7 @@ public class pactTest extends ConsumerPactTest {
         Map<String, String> headers = ImmutableMap.of(HttpHeaders.CONTENT_TYPE, "text/plain");
         try {
             return builder
-                    .given("test state")
+                    .given("there is a list a user data")
                     .uponReceiving("expect receive all user data")
                     .path(path)
                     .method("GET")
@@ -38,7 +38,7 @@ public class pactTest extends ConsumerPactTest {
                     .headers(headers)
                     .body(mapper.writeValueAsString(allUsers))
 
-                    .given("test state")
+                    .given("there is a list a user data")
                     .uponReceiving("expect receive specific user data according to name")
                     .path(path + "/siyu")
                     .method("GET")
